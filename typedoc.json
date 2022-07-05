@@ -1,0 +1,8 @@
+{
+    "exclude": ["./src/**/*.test.ts", "./*.ts"],
+    "mode": "file",
+    "out": "docs",
+    "excludePrivate": true,
+    "stripInternal": true,
+    "excludeNotExported": true
+}

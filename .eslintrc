@@ -1,0 +1,17 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "radar"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "plugin:radar/recommended"
+  ],
+  "rules": {
+    "no-unused-expressions": "error",
+    "radar/no-duplicate-string": "off"
+  },
+  "ignorePatterns": ["node_modules", "dist"]
+}

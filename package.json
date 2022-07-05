@@ -1,0 +1,67 @@
+{
+  "name": "uask-dom",
+  "version": "1.1.0",
+  "description": "DSL based forms",
+  "main": "./dist/dom/index.js",
+  "exports": {
+    ".": "./dist/dom/index.js",
+    "./example": "./dist/dom/example.js"
+  },
+  "types": "./dist/dom/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "example": [
+        "dist/dom/example.d.ts"
+      ]
+    }
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "node --loader ts-node/esm ./test-runner.ts",
+    "cover": "./node_modules/.bin/c8 --include 'src' npm test",
+    "doc": "./node_modules/.bin/typedoc ./src/index.ts",
+    "build": "./node_modules/.bin/tsc ; ./node_modules/.bin/rollup -c",
+    "lint": "./node_modules/.bin/eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/u-ask/uask-dom.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://github.com/u-ask/uask-dom#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "@types/glob": "^7.2.0",
+    "@types/sinon": "^10.0.11",
+    "@types/tape": "^4.13.2",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "c8": "^7.11.3",
+    "dotenv": "^16.0.1",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-radar": "^0.2.1",
+    "glob": "^8.0.3",
+    "knex": "^2.1.0",
+    "prettier": "^2.6.2",
+    "rollup": "^2.74.1",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-dts": "^4.2.2",
+    "sinon": "^14.0.0",
+    "sqlite3": "^5.0.8",
+    "tape": "^5.5.3",
+    "ts-loader": "^9.3.0",
+    "ts-node": "^10.8.0",
+    "tslib": "^2.4.0",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {}
+}

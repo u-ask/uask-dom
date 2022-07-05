@@ -1,0 +1,7 @@
+node_modules
+docs
+.vscode
+!.vscode/launch.json
+coverage
+.env
+out

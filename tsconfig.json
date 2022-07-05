@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "moduleResolution": "node",
+    "module": "esnext",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./out",
+    "removeComments": true
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}

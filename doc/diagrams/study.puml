@@ -1,0 +1,37 @@
+@startuml
+interface ItemType {
+}
+class PageItem {
+    +wording: string
+    +varName: string
+    +section: string
+}
+interface Rule {
+    +execute(...args: unknown[]): string[]
+}
+class CrossamplemRule {
+}
+class Page {
+    +name: string
+}
+class PageSet {
+    +type: string
+}
+class Survey {
+    +name: string
+}
+PageItem o-- "n" Rule
+Page *-- "n" PageItem
+PageSet o--> "n" Page
+Survey *-- "n" PageSet
+Survey *-- "n" Page
+Survey *-- "n" CrossamplemRule
+CrossamplemRule o-- "n" PageItem
+CrossamplemRule o-- "1" Rule
+PageItem o-- "1" ItemType
+hide methods
+hide ItemType fields
+hide CrossamplemRule fields
+hide Rule fields
+show Rule methods
+@enduml

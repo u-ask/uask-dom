@@ -1,0 +1,32 @@
+@startuml
+interface ISurveyBuilder {
+  +options(options: Partial<SurveyOptions>): void;
+  +survey(name: string): this;
+  +participantSchema(): IParticipantSchemaBuilder;
+  +visit(type: string | Record<string, string>): IVisitBuilder;
+  +page(name: string): IPageBuilder;
+  +validate(): string[];
+  +get(): Survey;
+}
+
+interface IPageBuilder {
+  +translate(lang: string, translation: string): this;
+  +question(wording: string, varname: string, type: ItemType): IPageItemBuilder;
+}
+
+interface IPageItemBuilder {
+  +question(wording: string, varname: string, type: PageItemType): this;
+  +translate(lang: string, translation: string): IPageItemBuilder;
+}
+
+interface IVisitBuilder {
+  +visit(type: string | Record<string, string>): this;
+  +translate(lang: string, translation: string): this;
+  +pages(...names: string[]): IVisitBuilder;
+}
+
+ISurveyBuilder ..> IPageBuilder
+ISurveyBuilder ..> IVisitBuilder
+IPageBuilder ..> IPageItemBuilder
+hide fields
+@enduml

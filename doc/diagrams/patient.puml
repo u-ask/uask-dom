@@ -1,0 +1,34 @@
+@startuml
+class PageItem {}
+class InterviewItem {
+    +value: unknown
+    +get status(): "missing" | "fulfilled"
+}
+class PageSet {}
+class Interview {
+    +date: Date
+    +getStatusForPage(page: Page): "incomplete" | "fulfilled"
+}
+class Sample {
+    +name: string
+}
+class Survey {
+    +name: string
+}
+class Participant {
+    +participantId: string
+}
+InterviewItem o..> "1" PageItem
+Interview o..> "1" PageSet
+Participant o..> "1" Survey
+Participant o.r.> "1" Sample
+Interview *-- "n" InterviewItem
+Participant *-- "n" Interview
+hide methods
+hide PageSet members
+hide PageItem members
+hide ParticipantSchemaEntry members
+hide ParticipantInformation members
+show InterviewItem methods
+show Interview methods
+@enduml
