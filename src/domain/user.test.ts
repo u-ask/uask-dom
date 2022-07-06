@@ -19,7 +19,7 @@ test("Create user", t => {
     "investigator:biologist",
     "jean.dupont@example.com",
     "+33686868686",
-    DomainCollection(new Sample("001"), new Sample("002")),
+    DomainCollection("001", "002"),
     DomainCollection(),
     { option: "test" }
   );
@@ -31,7 +31,7 @@ test("Create user", t => {
   t.equal(user.email, "jean.dupont@example.com");
   t.equal(user.phone, "+33686868686");
   t.equal(user.option, "test");
-  t.deepEqual(user.samples, DomainCollection(new Sample("001"), new Sample("002")));
+  t.deepEqual(user.sampleCodes, DomainCollection("001", "002"));
   t.end();
 });
 
@@ -43,7 +43,7 @@ test("User update", t => {
     "investigator:biologist",
     "jean.dupont@example.com",
     "+33686868686",
-    DomainCollection(new Sample("001"), new Sample("002")),
+    DomainCollection("001", "002"),
     DomainCollection(),
     { option: "test" }
   );
@@ -93,7 +93,7 @@ test("Participant user", t => {
   t.equal(user.role, "participant");
   t.equal(user.email, emailItem.value);
   t.equal(user.phone, phoneItem.value);
-  t.equal(user.participantIds?.[0], participant.participantCode);
+  t.equal(user.participantCodes?.[0], participant.participantCode);
   t.equal(user.userid, "test_00001");
   t.end();
 });
@@ -103,7 +103,7 @@ test("Participant like user", t => {
   const participant = { participantCode: "00001" };
   const user = new User(survey, participant);
   t.equal(user.role, "participant");
-  t.equal(user.participantIds?.[0], participant.participantCode);
+  t.equal(user.participantCodes?.[0], participant.participantCode);
   t.equal(user.userid, "test_00001");
   t.end();
 });
@@ -116,7 +116,7 @@ test("User with null non necessary fields", t => {
     "cst",
     "cst@arone.com",
     undefined,
-    DomainCollection(new Sample(""))
+    DomainCollection("001")
   );
   t.equal(user.email, "cst@arone.com");
   t.equal(user.role, "cst");

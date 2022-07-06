@@ -2698,14 +2698,13 @@ function isSurveyLike(o) {
     return typeof o == "object" && o != null && "name" in o;
 }
 class User {
-    constructor(x, y, z, t, u, phone, samples, participantIds, kwargs) {
-        var _a;
+    constructor(x, y, z, t, u, phone, sampleCodes, participantCodes, kwargs) {
         this.name = "";
         this.firstName = "";
         this.title = "";
         if (isSurveyLike(x) && isParticipantLike(y)) {
             this.workflow = "participant";
-            this.participantIds = DomainCollection(y.participantCode);
+            this.participantCodes = DomainCollection(y.participantCode);
             Object.assign(this, {
                 userid: `${x.name}_${y.participantCode}`.toLocaleLowerCase(),
             });
@@ -2725,18 +2724,18 @@ class User {
             this.workflow = t;
             this.email = u;
             this.phone = phone;
-            this.samples = samples;
-            this.participantIds = participantIds;
+            this.sampleCodes = sampleCodes;
+            this.participantCodes = participantCodes;
             Object.assign(this, kwargs);
         }
         else {
             this.workflow = x;
             this.email = (y !== null && y !== void 0 ? y : undefined);
             this.phone = (z !== null && z !== void 0 ? z : undefined);
-            this.samples = t;
-            this.participantIds = u;
+            this.sampleCodes = t;
+            this.participantCodes = u;
         }
-        [this.role] = (_a = this.workflow) === null || _a === void 0 ? void 0 : _a.split(":");
+        [this.role] = this.workflow.split(":");
         Object.freeze(this);
     }
     update(kwargs) {
@@ -2748,8 +2747,8 @@ class User {
             this.workflow,
             this.email,
             this.phone,
-            this.samples,
-            this.participantIds,
+            this.sampleCodes,
+            this.participantCodes,
         ]);
     }
 }

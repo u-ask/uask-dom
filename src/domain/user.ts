@@ -3,7 +3,6 @@ import { DomainCollection } from "./domaincollection.js";
 import { IDomainCollection } from "./domaincollectiondef.js";
 import { PageItem } from "./pageitem.js";
 import { Participant } from "./participant.js";
-import { Sample } from "./sample.js";
 import { Survey, SurveyOptions } from "./survey.js";
 
 function isParticipantLike(o: unknown): o is { participantCode: string } {
@@ -23,8 +22,8 @@ class User {
   readonly workflow: string;
   readonly email?: string;
   readonly phone?: string;
-  readonly samples?: IDomainCollection<Sample>;
-  readonly participantIds?: IDomainCollection<string>;
+  readonly sampleCodes?: IDomainCollection<string>;
+  readonly participantCodes?: IDomainCollection<string>;
 
   constructor(
     survey: Survey | { name: string },
@@ -34,8 +33,8 @@ class User {
     workflow: string,
     email?: string,
     phone?: string,
-    samples?: IDomainCollection<Sample>,
-    participantIds?: IDomainCollection<string>
+    sampleCodes?: IDomainCollection<string>,
+    participantCodes?: IDomainCollection<string>
   );
   constructor(
     name: string | undefined | null,
@@ -44,24 +43,24 @@ class User {
     workflow: string,
     email?: string,
     phone?: string,
-    samples?: IDomainCollection<Sample>,
-    participantIds?: IDomainCollection<string>,
+    sampleCodes?: IDomainCollection<string>,
+    participantCodes?: IDomainCollection<string>,
     kwargs?: { [k: string]: unknown }
   );
   constructor(
     x: string | Survey | { name: string } | undefined | null,
     y?: string | Participant | { participantCode: string } | undefined | null,
     z?: string | undefined | null,
-    t?: string | IDomainCollection<Sample>,
+    t?: string | IDomainCollection<string>,
     u?: string | IDomainCollection<string>,
     phone?: string,
-    samples?: IDomainCollection<Sample>,
-    participantIds?: IDomainCollection<string>,
+    sampleCodes?: IDomainCollection<string>,
+    participantCodes?: IDomainCollection<string>,
     kwargs?: { [k: string]: unknown }
   ) {
     if (isSurveyLike(x) && isParticipantLike(y)) {
       this.workflow = "participant";
-      this.participantIds = DomainCollection(y.participantCode);
+      this.participantCodes = DomainCollection(y.participantCode);
       Object.assign(this, {
         userid: `${x.name}_${y.participantCode}`.toLocaleLowerCase(),
       });
@@ -80,17 +79,17 @@ class User {
       this.workflow = t;
       this.email = u as string;
       this.phone = phone;
-      this.samples = samples;
-      this.participantIds = participantIds;
+      this.sampleCodes = sampleCodes;
+      this.participantCodes = participantCodes;
       Object.assign(this, kwargs);
     } else {
       this.workflow = x as string;
       this.email = (y ?? undefined) as string | undefined;
       this.phone = (z ?? undefined) as string | undefined;
-      this.samples = t;
-      this.participantIds = u as IDomainCollection<string>;
+      this.sampleCodes = t;
+      this.participantCodes = u as IDomainCollection<string>;
     }
-    [this.role] = this.workflow?.split(":");
+    [this.role] = this.workflow.split(":");
     Object.freeze(this);
   }
 
@@ -103,8 +102,8 @@ class User {
       this.workflow,
       this.email,
       this.phone,
-      this.samples,
-      this.participantIds,
+      this.sampleCodes,
+      this.participantCodes,
     ]);
   }
 }

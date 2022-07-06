@@ -864,15 +864,15 @@ declare class User {
     readonly workflow: string;
     readonly email?: string;
     readonly phone?: string;
-    readonly samples?: IDomainCollection<Sample>;
-    readonly participantIds?: IDomainCollection<string>;
+    readonly sampleCodes?: IDomainCollection<string>;
+    readonly participantCodes?: IDomainCollection<string>;
     constructor(survey: Survey | {
         name: string;
     }, participant: Participant | {
         participantCode: string;
     });
-    constructor(workflow: string, email?: string, phone?: string, samples?: IDomainCollection<Sample>, participantIds?: IDomainCollection<string>);
-    constructor(name: string | undefined | null, firstName: string | undefined | null, title: string | undefined | null, workflow: string, email?: string, phone?: string, samples?: IDomainCollection<Sample>, participantIds?: IDomainCollection<string>, kwargs?: {
+    constructor(workflow: string, email?: string, phone?: string, sampleCodes?: IDomainCollection<string>, participantCodes?: IDomainCollection<string>);
+    constructor(name: string | undefined | null, firstName: string | undefined | null, title: string | undefined | null, workflow: string, email?: string, phone?: string, sampleCodes?: IDomainCollection<string>, participantCodes?: IDomainCollection<string>, kwargs?: {
         [k: string]: unknown;
     });
     update(kwargs: Partial<User>): User;
