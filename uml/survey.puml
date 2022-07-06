@@ -1,15 +1,14 @@
-@startuml
-interface ItemType {
-}
+@startuml survey
 class PageItem {
     +wording: string
-    +varName: string
+    +variableName: string
+    +type: ItemType
     +section: string
 }
 interface Rule {
-    +execute(...args: unknown[]): string[]
+    +execute(...answers: Values[]): Values[]
 }
-class CrossamplemRule {
+class CrossItemRule {
 }
 class Page {
     +name: string
@@ -22,16 +21,15 @@ class Survey {
 }
 PageItem o-- "n" Rule
 Page *-- "n" PageItem
+Page *-- "n" Page
 PageSet o--> "n" Page
 Survey *-- "n" PageSet
 Survey *-- "n" Page
-Survey *-- "n" CrossamplemRule
-CrossamplemRule o-- "n" PageItem
-CrossamplemRule o-- "1" Rule
-PageItem o-- "1" ItemType
+Survey *-- "n" CrossItemRule
+CrossItemRule o-- "n" PageItem
+CrossItemRule o-- "1" Rule
 hide methods
-hide ItemType fields
-hide CrossamplemRule fields
+hide CrossItemRule fields
 hide Rule fields
 show Rule methods
 @enduml
