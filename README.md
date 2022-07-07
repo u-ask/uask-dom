@@ -1,8 +1,8 @@
-# Spiral
+# U-ASK Domain Model
 
 U-ASK domain model classes and builders. This library implement an internal domain specific language as described in [Martin Fowler's Domain Specific Languages](https://martinfowler.com/dsl.html).
 
-This library is intended to be used with [U-ASK Management System](https://github.com/u-ask/uask-sys) and [U-ASK Web Application](https://github.com/u-ask/uask-app).
+This library is intended to be used with [U-ASK Management System](https://github.com/u-ask/uask-sys#readme) and [U-ASK Web Application](https://github.com/u-ask/uask-app#readme).
 
 # Install
 ```bash
@@ -24,7 +24,7 @@ A `Survey` is composed of `Page` objects. `Page` objects are hierarchical, they 
 `Survey` objects are complex graphes, construction is easier with fluent builders :
 
 ```ts
-import builder from "uask-dom"
+import { builder } from "uask-dom"
 
 const b = builder();
 
@@ -83,7 +83,78 @@ A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
 
 `InterviewItem` holds a value and represent an answer to a `PageItem` (a question).
 
-`Participant` may also be build using fluent buiders. See [./src/example/index.ts]() for more information.
+`Participant` may also be build using fluent buiders.
+
+The following code builds a `Participant` with code `"11A"` in the given sample of the given survey. The participant will have one interview, corresponding to page set `"Questionnaire"` with two answers, for items corresponding to variables `"OK"` and `"WHEN"`.
+```ts
+const patient = new ParticipantBuilder(survey, "11A", sample);
+  .interview("Questionnaire")
+  .item("OK").value(false)
+  .item("WHEN").value(new Date())
+  .get();
+```
+
+the same can be done using domain model objects instead of string identifiers:
+```ts
+const questionnaire: PageSet = //...
+const Ok: PageItem = //...
+const When: PageItem = //...
+
+const patient = new ParticipantBuilder(survey, "11A", sample);
+  .interview(questionnaire)
+  .item(Ok).value(false)
+  .item(When).value(new Date())
+  .get();
+```
+
+See [./src/example/index.ts]() for an example of fluent builders usage.
+
+## Domain model objects mutations
+
+Domain model objects are mostly immutable. When a domain model object needs an update in some business logic, a new version of the object is produced :
+
+```ts
+const pageItem = new PageItem("Are you OK ?", "OK", QuestionTypes.yesno);
+const interviewItem = new InterviewItem(pageItem, true);
+//...
+const updatedInterviewItem = interviewItem.update({ value: false });
+```
+
+Domain object collections are also immutable, if a new version of an object has been produced, a new collection including the new object must be created :
+
+```ts
+const interviewItems = DomainCollection(interviewItem, ...);
+//...
+const updatedInterviewItems = interviewItems.update(
+  a => a == interviewItem ? updatedInterviewItem : a
+);
+```
+
+Mutations on `Patient`, `Interview` and `InterviewItem` can be achieved using the corresponding builders. The following snippet will created and updated version the `patient`, with items corresponding to variables `"OK"` and `"WHEN"` updated in interview corresponding do page set `Questionnaire` and identified by the nonce `11145786`.
+
+```ts
+const patient: Patient = //...
+
+const updatedPatient = new ParticipantBuilder(survey, patient)
+  .interview("Questionnaire", 11145786)
+  .item("OK").value(false)
+  .item("WHEN").value(new Date())
+  .get();
+```
+
+The same can be done with domain models instead of string identifiers :
+```ts
+const patient: Patient = //...
+const questionnaire11145786: Interview = //...
+const Ok: PageItem = //...
+const When: PageItem = //...
+
+const updatedPatient = new ParticipantBuilder(study, patient)
+  .interview(questionnaire11145786)
+  .item(Ok).value(false)
+  .item(When).value(new Date())
+  .get();
+```
 
 # DSL reference
 
@@ -114,7 +185,7 @@ A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
 |`unitSuffix`     | `'_UNIT'`       | suffix used for exporting data units if applicable
 
 ###### Example
-```
+```ts
 b.study('Demo-eCRF')
   .defaultLang('fr')
   .visit('INCL')
@@ -190,7 +261,7 @@ The third argument of `.question(wording, variable, type)` is the result of one 
 |&emsp;`.translate(lang, wordings...)`                | adds a translation for category wordings
 
 ###### Example
-```
+```ts
 b.page('INCL')
   .translate('fr', 'Inclusion')
   .translate('en', 'English')
@@ -246,13 +317,13 @@ A formula are composed of :
  | `~IN(VAR, value)` | returns `@ACK` if given variable of type `.choice('many')` contains the given value
  
 ###### Examples
-```
+```ts
 b.page('...')
  .question('Où souffrez-vous ?', 'LOC', b.types.choice('many', 'MAIN', 'DOS', 'JAMBE', 'TÊTE', 'AUTRE')
  .question('Si AUTRE, précisez', 'LOC_AUTRE', b.types.text)
    .activatedWhen(~IN('LOC, "Autre")')
 ```
-```
+```ts
 b.page('...')
   question('Date de la visite', 'DATE_VIS', b.types.date())
  .question('Confirmez que la date est postérieure à ce jour', '__DATE_POST', b.types.acknowledge)
@@ -287,7 +358,7 @@ This is achieved by using DSL syntax in the question wordings :
 | `-> row -> column` | a table nested in a recordset
 
 ###### Examples
-```
+```ts
 b.page('...')
   .question('Red cells -> Result', 'RES_BLOOD', b.types.real)
   .question('Red cells -> Interpretation', 'INT_BLOOD', b.choice('one', 'normal', 'abnormal'))
@@ -300,7 +371,7 @@ b.page('...')
 >| **Red cells**       | RES_BLOOD | INT_BLOOD
 >| **Haemoglobin**     | RES_BLOOD | INT_HAEMO
 
-```
+```ts
 b.page('...')
   .question('-> Year', 'YEAR', b.types.integer)
   .question('-> Treatment', 'TREAT', b.types.text)
@@ -330,7 +401,7 @@ Comment can be written as : `directives...{classes...}`. Classes begins with a d
 | `.no-specials`                | the field won't be modifiable, thus do not display specials
 
 ###### Example
-```
+```ts
 b.page(' ')
  .question('Pain scale', 'PAIN', b.types.scale(1, 10))
  .comment('<No pain | Maximum pain>{.row}')
