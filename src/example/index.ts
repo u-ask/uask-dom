@@ -253,7 +253,7 @@ b.page("Array example")
     .question("Single", "SDATE", b.types.date())
     .include("Page array example");
 
-const exampleSurvey: Survey = b.get();
+const exampleSurvey: Survey = b.build();
 
 const exampleSamples: Sample[] = [new Sample("001"), new Sample("002")];
 

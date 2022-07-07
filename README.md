@@ -28,53 +28,19 @@ import { builder } from "uask-dom"
 
 const b = builder();
 
-b.options({
-  defaultLang: "en",
-});
+b.survey("First-Survey")
+  .pageSet("Questionnaire").pages("Questions");
 
-b.survey("P11-05")
-  .pageSet("Inclusion").pages("General", "Risks", "Symptoms")
-  .pageSet("Follow Up").pages("General", "Symptoms", "Status", "Side effects");
-
-b.page("General").translate("fr", "Général")
-  .question("Visit date :", "VDATE", b.types.date)
-    .translate("fr", "Date de la visample");
-
-b.page("Risks").translate("fr", "Risques")
-  .question("Is the participant exposed to gases, fumes, vapors, dust ?", "EXP", b.types.yesno)
-    .translate("fr", "Le participant est-il exposé à des gaz, fumées, vapeurs, poussières")
-  .question("Is the participant a smoker ?", "SMOKE", b.types.yesno)
-    .translate("fr", "Le participant est-il fumeur ?")
-  .question("If yes, since when ?", "SMOWHEN", b.types.date)
-    .translate("fr", "Si oui depuis quand ?");
-
-b.page("Symptoms").translate("fr", "Symptomes")
-  .question("Dyspnea", "DYSP", b.types.scale(1, 5))
-    .translate("fr", "Dyspnée")
-  .question("Cough", "COUGH", b.types.yesno)
-    .translate("fr", "Toux");
-
-b.page("Status").translate("fr", "Statut")
-  .question("Status of the malignancy", "MALSTATUS", b.types.choice(
-      "one",
-      "Completely recovery",
-      "Recovering",
-      "Remission",
-      "Ongoing"
-    )
-  )
-  .translate("fr", "Statut de la tumeur");
-
-b.page("Side effects").translate("fr", "Effets secondaires")
-  .question("Other side effects that have been experienced ?", "SIDEF", b.types.text)
-    .translate("fr", "D'autres effets secondaires ont-ils été ressentis ?")
-  .question("Pain scale rating :", "SIDSC", b.types.scale(1, 5))
-    .translate("fr", "Evaluation sur l'échelle de douleur :");
+b.page("Questions")
+  .question("Ok?", "OK", b.types.yesno)
+  .question("When:", "WHEN", b.types.date());
 
 const survey = b.build();
 ```
 
 The result is a `Survey` object with `PageSet`, `Page` and `PageItem` objects that reflects the stucture of the fluent program above.
+
+The complete refercence for survey buiders is [below](#dsl-reference)
 
 ## `Participant` construction
 A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
@@ -87,24 +53,28 @@ A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
 
 The following code builds a `Participant` with code `"11A"` in the given sample of the given survey. The participant will have one interview, corresponding to page set `"Questionnaire"` with two answers, for items corresponding to variables `"OK"` and `"WHEN"`.
 ```ts
-const patient = new ParticipantBuilder(survey, "11A", sample);
-  .interview("Questionnaire")
+import { ParticipantBuilder } from "uask-dom";
+
+const builder = new ParticipantBuilder(survey, "11A", sample);
+builder.interview("Questionnaire")
   .item("OK").value(false)
-  .item("WHEN").value(new Date())
-  .get();
+  .item("WHEN").value(new Date());
+const participant = builder.build();
 ```
 
 the same can be done using domain model objects instead of string identifiers:
 ```ts
+import { ParticipantBuilder } from "uask-dom";
+
 const questionnaire: PageSet = //...
 const Ok: PageItem = //...
 const When: PageItem = //...
 
-const patient = new ParticipantBuilder(survey, "11A", sample);
-  .interview(questionnaire)
+const builder = new ParticipantBuilder(survey, "11A", sample);
+builder.interview(questionnaire)
   .item(Ok).value(false)
   .item(When).value(new Date())
-  .get();
+const participant = builder.build();
 ```
 
 See [./src/example/index.ts]() for an example of fluent builders usage.
@@ -130,30 +100,34 @@ const updatedInterviewItems = interviewItems.update(
 );
 ```
 
-Mutations on `Patient`, `Interview` and `InterviewItem` can be achieved using the corresponding builders. The following snippet will created and updated version the `patient`, with items corresponding to variables `"OK"` and `"WHEN"` updated in interview corresponding do page set `Questionnaire` and identified by the nonce `11145786`.
+Mutations on `Patient`, `Interview` and `InterviewItem` can be achieved using the corresponding builders. The following snippet will created and updated version the `participant`, with items corresponding to variables `"OK"` and `"WHEN"` updated in interview corresponding do page set `Questionnaire` and identified by the nonce `11145786`.
 
 ```ts
-const patient: Patient = //...
+import { ParticipantBuilder } from "uask-dom";
 
-const updatedPatient = new ParticipantBuilder(survey, patient)
-  .interview("Questionnaire", 11145786)
+const participant: Patient = //...
+
+const builder = new ParticipantBuilder(survey, participant)
+builder.interview("Questionnaire", 11145786)
   .item("OK").value(false)
   .item("WHEN").value(new Date())
-  .get();
+const updatedPatient = builder.build();
 ```
 
 The same can be done with domain models instead of string identifiers :
 ```ts
-const patient: Patient = //...
+import { ParticipantBuilder } from "uask-dom";
+
+const participant: Patient = //...
 const questionnaire11145786: Interview = //...
 const Ok: PageItem = //...
 const When: PageItem = //...
 
-const updatedPatient = new ParticipantBuilder(study, patient)
-  .interview(questionnaire11145786)
+const builder = new ParticipantBuilder(study, participant)
+builder.interview(questionnaire11145786)
   .item(Ok).value(false)
   .item(When).value(new Date())
-  .get();
+const updatedPatient = builder.build();
 ```
 
 # DSL reference
@@ -179,9 +153,9 @@ const updatedPatient = new ParticipantBuilder(study, patient)
 |`defaultLang`    | `'en'`          | fallback language if browser language is not supported
 |`showFillRate`   | `true`          | show fill rate for visits
 |`visitDateVar`   | `'VDATE'`       | default variable that holds the visit date
-|`phoneVar`       | `'__PHONE'`     | patient phone number if any
-|`emailVar`       | `'__EMAIL'`     | patient email if any
-|`inclusionVar`   | `'__INCLUDED'`  | variable that holds whether the patient is included or not
+|`phoneVar`       | `'__PHONE'`     | participant phone number if any
+|`emailVar`       | `'__EMAIL'`     | participant email if any
+|`inclusionVar`   | `'__INCLUDED'`  | variable that holds whether the participant is included or not
 |`unitSuffix`     | `'_UNIT'`       | suffix used for exporting data units if applicable
 
 ###### Example
@@ -304,7 +278,7 @@ A formula are composed of :
  |:-----------------|:-------------------------|
  | `X, Y, Z ...`    | current value of a variable declared in the questions
  | `$X, $Y, $Z ...` | previous value of a variable declared in the questions
- | `@LASTIN`        | last input date for the patient
+ | `@LASTIN`        | last input date for the participant
  | `@UNDEF`         | undefined value
  | `@ACK`           | acknowledged or true value
  | `@THISYEAR`      | current year
