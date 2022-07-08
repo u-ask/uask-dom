@@ -89,6 +89,7 @@ test("Default workflow", t => {
   t.equal(mainWorkflow.name, "main");
   t.equal(mainWorkflow.info, infoPageSet);
   t.equal(mainWorkflow.single, pageSets);
+  t.equal(mainWorkflow.sequence, pageSets);
   t.equal(mainWorkflow.pageSets.length, 3);
   t.end();
 });

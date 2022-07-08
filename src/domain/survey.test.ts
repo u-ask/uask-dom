@@ -167,8 +167,8 @@ test("Survey default workflow", t => {
   });
   t.equal(survey.pages[2], survey.pageSets[2].pages[0]);
   t.equal(survey.mainWorkflow.info, survey.pageSets[2]);
-  t.equal(survey.mainWorkflow.single[0], pageSet1);
-  t.equal(survey.mainWorkflow.single[1], pageSet2);
+  t.equal(survey.mainWorkflow.sequence[0], pageSet1);
+  t.equal(survey.mainWorkflow.sequence[1], pageSet2);
   t.end();
 });
 

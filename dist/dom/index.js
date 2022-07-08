@@ -2216,6 +2216,7 @@ class Workflow {
             name: "main",
             info: infoPageSet,
             single: pageSets,
+            sequence: pageSets,
         });
         return { infoPage, infoPageSet, mainWorkflow };
     }
