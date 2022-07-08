@@ -119,7 +119,7 @@ export interface IPageItemBuilder
     translation: string,
     ...contexts: string[]
   ): IPageItemBuilder;
-  required(formula?: string): IPageItemBuilder;
+  required(formula?: string | Computed): IPageItemBuilder;
   critical(
     event: string | Computed,
     message?: string,
@@ -146,7 +146,7 @@ export interface IPageItemBuilder
   maxLength(maxLength: number): IPageItemBuilder;
   decimalPrecision(precision: number): IPageItemBuilder;
   fixedLength(length: number): IPageItemBuilder;
-  computed(formula: string): IPageItemBuilder;
+  computed(formula: string | Computed): IPageItemBuilder;
   memorize(): IPageItemBuilder;
   letterCase(letterCase: "upper" | "lower"): IPageItemBuilder;
   activateWhen(formula: string): IPageItemBuilder;
@@ -186,9 +186,8 @@ export interface IWorkflowBuilder {
   home(type: string): IWorkflowBuilder;
   initial(...types: string[]): IWorkflowBuilder;
   followUp(...types: string[]): IWorkflowBuilder;
-  end(...types: string[]): IWorkflowBuilder;
+  terminal(...types: string[]): IWorkflowBuilder;
   auxiliary(...types: string[]): IWorkflowBuilder;
-  notify(...events: string[]): IWorkflowBuilder;
 }
 
 export interface IRawWorkflowBuilder {

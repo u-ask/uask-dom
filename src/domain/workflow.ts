@@ -5,7 +5,7 @@ import { Page } from "./page.js";
 import { PageSet } from "./pageSet.js";
 
 export class Workflow {
-  readonly info?: PageSet;
+  readonly info: PageSet = Workflow.home().infoPageSet;
   readonly single = DomainCollection<PageSet>();
   readonly many = DomainCollection<PageSet>();
   readonly sequence = DomainCollection<PageSet>();
@@ -140,11 +140,7 @@ export class Workflow {
   }
 
   static default(pageSets: IDomainCollection<PageSet>) {
-    const info = { __code__: "HOME", en: "Synthesis" };
-    const infoPage = new Page(info);
-    const infoPageSet = new PageSet(info, {
-      pages: DomainCollection(infoPage),
-    });
+    const { infoPageSet, infoPage } = Workflow.home();
     const mainWorkflow = new Workflow({
       name: "main",
       info: infoPageSet,
@@ -152,5 +148,14 @@ export class Workflow {
       sequence: pageSets,
     });
     return { infoPage, infoPageSet, mainWorkflow };
+  }
+
+  private static home() {
+    const info = { __code__: "HOME", en: "Synthesis" };
+    const infoPage = new Page(info);
+    const infoPageSet = new PageSet(info, {
+      pages: DomainCollection(infoPage),
+    });
+    return { infoPageSet, infoPage };
   }
 }

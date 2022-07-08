@@ -59,6 +59,8 @@ class Survey {
     this.name = name;
     Object.assign(this, kwargs);
     if (this.workflows.length == 0) Object.assign(this, this.initWorkflow());
+    if (!this.pageSets.includes(this.mainWorkflow.info))
+      Object.assign(this, this.initInfo(this.mainWorkflow));
     this.itemForVariables = this.getItemForVariables();
     this.items = DomainCollection(...this.itemForVariables.values());
     this.rules = this.getRules();
@@ -66,6 +68,12 @@ class Survey {
     Object.defineProperty(this, "rules", { enumerable: false });
     Object.defineProperty(this, "itemForVariables", { enumerable: false });
     Domain.extend(this);
+  }
+
+  private initInfo(workflow: Workflow) {
+    const pages = this.pages.append(...workflow.info.pages);
+    const pageSets = this.pageSets.append(workflow.info);
+    return { pages, pageSets };
   }
 
   private initWorkflow() {

@@ -7,7 +7,7 @@ mainWorkflow
   .home("Introduction")
   .auxiliary("Follow up", "Adverse event")
   .initial("Inclusion")
-  .end("Final consultation");
+  .terminal("Final consultation");
 
 test("Main workflow construction", t => {
   const { ps0, ps1, ps2, ps3, ps4, ps5 } = buildPageSets();

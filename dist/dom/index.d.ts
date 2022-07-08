@@ -665,7 +665,7 @@ declare class Interview implements Differentiable {
 declare function getLastItems(interviews: IDomainCollection<Interview>, pageItems: IDomainCollection<PageItem<"prototype"> | string>): IDomainCollection<InterviewItem | undefined>;
 
 declare class Workflow {
-    readonly info?: PageSet;
+    readonly info: PageSet;
     readonly single: IDomainCollection<PageSet>;
     readonly many: IDomainCollection<PageSet>;
     readonly sequence: IDomainCollection<PageSet>;
@@ -697,6 +697,7 @@ declare class Workflow {
         infoPageSet: PageSet;
         mainWorkflow: Workflow;
     };
+    private static home;
 }
 
 declare class Participant {
@@ -791,6 +792,7 @@ declare class Survey {
     readonly rules: IDomainCollection<CrossItemRule>;
     private readonly itemForVariables;
     constructor(name: string, kwargs?: Partial<Survey>);
+    private initInfo;
     private initWorkflow;
     get mainWorkflow(): Workflow;
     workflow(name?: {
@@ -1053,9 +1055,8 @@ interface IWorkflowBuilder {
     home(type: string): IWorkflowBuilder;
     initial(...types: string[]): IWorkflowBuilder;
     followUp(...types: string[]): IWorkflowBuilder;
-    end(...types: string[]): IWorkflowBuilder;
+    terminal(...types: string[]): IWorkflowBuilder;
     auxiliary(...types: string[]): IWorkflowBuilder;
-    notify(...events: string[]): IWorkflowBuilder;
 }
 interface IRawWorkflowBuilder {
     home(name: string): IRawWorkflowBuilder;
@@ -1120,7 +1121,7 @@ declare class PageItemBuilder implements IPageItemBuilder, DNode<PageItem> {
     endSection(): IPageBuilder;
     unit(...units: string[]): this;
     extendable(): this;
-    required(formula?: string): this;
+    required(formula?: string | Computed): this;
     critical(event: string | Computed, message?: string, ...values: unknown[]): this;
     inRange(min: number | Date | Computed, max: number | Date | Computed, limits?: {
         includeLower: boolean;
@@ -1271,6 +1272,7 @@ declare class WorkflowBuilder implements IWorkflowBuilder, IDerivedWorkflowBuild
     auxiliary(...names: string[]): IWorkflowBuilder;
     initial(...names: string[]): IWorkflowBuilder;
     followUp(...names: string[]): IWorkflowBuilder;
+    terminal(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder;
     end(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder;
     one(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder;
     n(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder;

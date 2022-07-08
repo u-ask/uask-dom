@@ -2106,6 +2106,7 @@ class PageSet {
 
 class Workflow {
     constructor(kwargs) {
+        this.info = Workflow.home().infoPageSet;
         this.single = DomainCollection();
         this.many = DomainCollection();
         this.sequence = DomainCollection();
@@ -2207,11 +2208,7 @@ class Workflow {
         return Domain.update(this, kwargs, [Workflow]);
     }
     static default(pageSets) {
-        const info = { __code__: "HOME", en: "Synthesis" };
-        const infoPage = new Page(info);
-        const infoPageSet = new PageSet(info, {
-            pages: DomainCollection(infoPage),
-        });
+        const { infoPageSet, infoPage } = Workflow.home();
         const mainWorkflow = new Workflow({
             name: "main",
             info: infoPageSet,
@@ -2219,6 +2216,14 @@ class Workflow {
             sequence: pageSets,
         });
         return { infoPage, infoPageSet, mainWorkflow };
+    }
+    static home() {
+        const info = { __code__: "HOME", en: "Synthesis" };
+        const infoPage = new Page(info);
+        const infoPageSet = new PageSet(info, {
+            pages: DomainCollection(infoPage),
+        });
+        return { infoPageSet, infoPage };
     }
 }
 
@@ -2262,6 +2267,8 @@ class Survey {
         Object.assign(this, kwargs);
         if (this.workflows.length == 0)
             Object.assign(this, this.initWorkflow());
+        if (!this.pageSets.includes(this.mainWorkflow.info))
+            Object.assign(this, this.initInfo(this.mainWorkflow));
         this.itemForVariables = this.getItemForVariables();
         this.items = DomainCollection(...this.itemForVariables.values());
         this.rules = this.getRules();
@@ -2269,6 +2276,11 @@ class Survey {
         Object.defineProperty(this, "rules", { enumerable: false });
         Object.defineProperty(this, "itemForVariables", { enumerable: false });
         Domain.extend(this);
+    }
+    initInfo(workflow) {
+        const pages = this.pages.append(...workflow.info.pages);
+        const pageSets = this.pageSets.append(workflow.info);
+        return { pages, pageSets };
     }
     initWorkflow() {
         const { infoPage, infoPageSet, mainWorkflow } = Workflow.default(this.pageSets);
@@ -2902,8 +2914,9 @@ class PageItemBuilder {
         return this;
     }
     required(formula) {
-        return this.isComputed({ formula })
-            ? this.dynamic([this.variableName], "required", [formula])
+        const enforced = isComputed(formula) ? formula.formula : formula;
+        return typeof enforced == "string"
+            ? this.dynamic([this.variableName], "required", [enforced])
             : this.rule("required");
     }
     critical(event, message, ...values) {
@@ -3414,6 +3427,9 @@ class WorkflowBuilder {
         this.n(...names);
         return this;
     }
+    terminal(...names) {
+        return this.end(...names);
+    }
     end(...names) {
         this.stopTypes.push(...names);
         return this;
@@ -3445,7 +3461,7 @@ class WorkflowBuilder {
             this.home(this.main._infoType[0]);
         this.n(...this.main.manyTypes.filter(n => types.includes(n)));
         this.seq(...this.main.sequenceTypes.filter(n => types.includes(n)));
-        this.end(...this.main.stopTypes.filter(n => types.includes(n)));
+        this.terminal(...this.main.stopTypes.filter(n => types.includes(n)));
         this.signOn(...this.main.signedTypes.filter(n => types.includes(n)));
         this.pageSetTypes.push(...types);
         return this;

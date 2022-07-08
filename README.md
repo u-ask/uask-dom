@@ -4,6 +4,15 @@ U-ASK domain model classes and builders. This library implement an internal doma
 
 This library is intended to be used with [U-ASK Management System](https://github.com/u-ask/uask-sys#readme) and [U-ASK Web Application](https://github.com/u-ask/uask-app#readme).
 
+ - [Install](#install)
+ - [Survey](#survey-construction)
+ - [Rules](#rules)
+ - [Workflows](#workflows)
+ - [Participant](#participant-construction)
+ - [Mutations](#domain-model-objects-mutations)
+ - [DSL reference](#dsl-reference)
+
+
 # Install
 ```bash
 npm Install uask-dom
@@ -42,9 +51,127 @@ The result is a `Survey` object with `PageSet`, `Page` and `PageItem` objects th
 
 The complete refercence for survey buiders is [below](#dsl-reference)
 
+## Rules
+A `PageItem` may be the target or a `Rule`. For example a page item can enforce that a value must be provided.
+```ts
+b.page("Questions")
+  .question("Ok?", "OK", b.types.yesno)
+  .required()
+  // ...
+```
+
+A `PageItem` value can have a default value :
+```ts
+b.page("Questions")
+  // ...
+  .question("When:", "WHEN", b.types.date())
+  .defaultValue("@TODAY");
+```
+
+Rules are executed in order of appearance of their target `PageItem` in the DSL ; for a given target they are executed in order of deacreasing precedence.
+
+| rule name        | description                          | parameters                       | precedence
+|:-----------------|:-------------------------------------|:---------------------------------|-----------:
+| copy             | copy another item value, unit, etc.  | variable name                    |        110
+| computed         | cacluate the value from other items  | formula                          |        100
+| defaultValue     | the value when the item is activated | value*                           |        100
+| critical         | fires an event when item is valued   | event*, message, values*         |         70
+| required         | requires a value when enforced       | formula?                         |         70
+| activateWhen     | activate the item on condition       | variableName, values OR formula  |         50
+| decimalPrecision | the number of decimal digits         | precision                        |         10
+| inRange          | must be between given min and max    | min*, max*, limits               |         10
+| letterCase       | enforce lower or upper case          | "upper" OR "lower"               |         10
+| fixedLength      | the exact number of characters       | length                           |         10
+| maxLength        | the max number of characters         | length                           |         10
+
+_note:_ parameters followed by a * may be replaced by a formula, a formula is constructed wih the `computed` keyword:
+
+```ts
+b.page("Questions")
+  // ...
+  .question("When:", "WHEN", b.types.date())
+  .inRange("2022-01-01", b.computed("@TODAY"));
+```
+
+A critical rule fires an event that will be notified to users which workflow subscribed to that event (see [Derived workflows](#derived-workflows)).
+
+```ts
+b.page("Questions")
+  // ...
+  .question("When:", "WHEN", b.types.date())
+  .critical("before_2022", "before 2022", b.computed("WHEN < #2022-01-01#"));
+```
+
 ## Workflows
-A survey may have one 
+A `Survey` has one or more `Workflow` objects. A workflow represents the page sets a user has access to and when he can create an interview related to a given page set.
+
+### Main workflow
+In the main workflow a page set may :
+  - appear once or multiple times
+  - belong to the sequence or be auxiliary
+  - terminate the workflow (or not)
+  
+The workflow sequence follows the following stucture:
+
+![workflow sequence](./uml/workflow.svg)
+
+The fisrt interview of a participant always refercences the starting page set. Subsequent interviews will reference pages sets in order defined in the sequence. Initial page sets appears in only one interview and follow up page sets can be repeated in multiple interviews, always following the sequence.
+
+Terminal page sets terminate the workflow: no more interview could be created for the participant.
+
+Auxiliary page sets can appear any time after the sequence started.
+
+`Workflow` creation is part of `Survey` construction:
+
+```ts
+import { builder } from "uask-dom"
+
+const b = builder();
+
+b.survey("First-Survey")
+  .pageSet("Initial 1").pages("I1")
+  .pageSet("Initial 2").pages("I2")
+  .pageSet("Follow up 1").pages("F1")
+  .pageSet("Follow up 2").pages("F2")
+  .pageSet("Terminal 1").pages("T1")
+  .pageSet("Terminal 2").pages("T1")
+  .pageSet("Auxiliary 1").pages("A1")
+  .pageSet("Auxiliary 2").pages("A2")
+
+//...
+
+b.workflow()
+  .initial("Initial 1", "Initial 2")
+  .followUp("Follow up 1", "Follow up 2")
+  .terminal("Terminal 1", "Terminal 2")
+  .auxiliary("Auxiliary 1", "Auxiliary 2")
+
+const survey = b.build();
+```
+
+### Derived workflows
+Derived workflows are built from the main workflow, giving access to a restricted subset of the page sets. They have the same sequence, terminal and auxiliary page sets.
+
+Derived workflows can optionally have associated notifications. Notifications refers to critical events declared with a question. Users with that workflow will receive notifications when the event fires.
+
+A derived workflow is identified by its name (which can not be `"main"`), and optionally a specifier. Names are not restricted in this library but in [U-ASK Management System](https://github.com/u-ask/uask-sys#readme) the allowed values are :
+ - `writer`
+ - `reader`
+ - `administrator`
+ - `superadministrator`
+ - `developer`
+The specifier if any, is positionned after the name, separated with `:` (e.g. `"writer:investigator"`, `"reader:coordinator"`).
+
+```ts
+// ...
+
+b.workflow("writer:investigator")
+  .withPageSets("Follow up 1", "Follow up 2")
+  .notify("special")
+```
+
 ## `Participant` construction
+
 A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
 
 `Participant` contains `Interview` objects that reference a `PageSet` and contains `InterviewItem` objects.
@@ -125,7 +252,7 @@ const questionnaire11145786: Interview = //...
 const Ok: PageItem = //...
 const When: PageItem = //...
 
-const builder = new ParticipantBuilder(study, participant)
+const builder = new ParticipantBuilder(survey, participant)
 builder.interview(questionnaire11145786)
   .item(Ok).value(false)
   .item(When).value(new Date())
@@ -134,12 +261,12 @@ const updatedPatient = builder.build();
 
 # DSL reference
 
-## Study and visit construction
+## Survey and visit construction
 
 | instruction                           |                |
 |:--------------------------------------|:---------------|
-|`.study(name)`                         | creates a study with given name
-| &emsp; `.options(opt)`                | declares options for the study
+|`.survey(name)`                         | creates a survey with given name
+| &emsp; `.options(opt)`                | declares options for the survey
 | &emsp; `.visit(name)`                 | creates a page set (or visit) with given name
 | &emsp;&emsp; `.translate(lang, name)` | add a translation for visit name
 | &emsp;&emsp; `.dateVariable(name)`    | declares the variable which holds the visit date
@@ -147,11 +274,11 @@ const updatedPatient = builder.build();
 | |
 | `.mandatory(name)`                    | declares that a page is mandatory in a visit, result is passed to `.pages` 
 
-### Study options
+### Survey options
 
 | option          | default value   |                    |
 |:----------------|:----------------|:-------------------|
-|`languages`      | `['en', 'fr']`  | languages supported by the study
+|`languages`      | `['en', 'fr']`  | languages supported by the survey
 |`defaultLang`    | `'en'`          | fallback language if browser language is not supported
 |`showFillRate`   | `true`          | show fill rate for visits
 |`visitDateVar`   | `'VDATE'`       | default variable that holds the visit date
@@ -162,7 +289,7 @@ const updatedPatient = builder.build();
 
 ###### Example
 ```ts
-b.study('Demo-eCRF')
+b.survey('Demo-eCRF')
   .defaultLang('fr')
   .visit('INCL')
     .translate('fr', 'Inclusion')
@@ -193,6 +320,8 @@ b.study('Demo-eCRF')
 | &emsp;&emsp; `.fixedLength(length)`                 | decrares that the variable value is a text which lenght is exactly given length
 | &emsp;&emsp; `.letterCase(case)`                    | decrares that the variable value is a text which case is 'upper' or 'lower'
 | &emsp;&emsp; `.computed(formula)`                   | apply the given formula to the variable
+| &emsp;&emsp; `.critical(event, message, values...)` | fires the event when the item receives the given values
+| &emsp;&emsp; `.critical(event, message, formula)`   | fires the event when the formula is true
 | &emsp;&emsp; `.visibleWhen(formula, results...)`    | shows this question only when the given formula is true or if any equal to one of the given results
 | &emsp;&emsp; `.activatedWhen(formula, results...)`  | activates this question only when the given formula is true or if any equal to one of the given results
 | &emsp;&emsp; `.modifiableWhen(formula, results...)` | allows modifications on this question only when the given formula is true or if any equal to one of the given results
@@ -386,21 +515,3 @@ b.page(' ')
 > Pain scale<br/>
 > &emsp; No pain &nbsp; 1 &emsp; 2 &emsp; 3 &emsp; 4 &emsp; 5 &emsp; 6 &emsp; 7 &emsp; 8 &emsp; 9 &emsp; 10 &nbsp; Maximum pain
 
-
-## Rule execution order
-
-Rules are executed in order of appearance of their target `PageItem` in the DSL ; for a given target they are executed in order of deacreasing precedence.
-
-| rule name        | precedence
-|:-----------------|:-----------
-| copy             |        110
-| computed         |        100
-| constant         |        100
-| critical         |         70
-| required         |         70
-| activation       |         50
-| decimalPrecision |         10
-| fixedLength      |         10
-| inRange          |         10
-| letterCase       |         10
-| maxLength        |         10

@@ -168,7 +168,7 @@ test("Build a survey with reordered workflow", t => {
   b.workflow()
     .home("P0")
     .initial("P2", "P1", "P3")
-    .end("P6", "P4", "P5")
+    .terminal("P6", "P4", "P5")
     .auxiliary("P7", "P8", "P9");
   const survey = b.get();
 

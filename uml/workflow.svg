@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="103px" preserveAspectRatio="none" style="width:558px;height:103px;background:#FFFFFF;" version="1.1" viewBox="0 0 558 103" width="558px" zoomAndPan="magnify"><defs/><g><!--MD5=[c8b15c8f1e5485d061e7c5ff4302c23a]
+class I1--><g id="elem_I1"><rect codeLine="1" fill="#F1F1F1" height="27.6094" id="I1" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="50" x="7" y="70"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="10" y="89.5332">initial 1</text></g><!--MD5=[8d8923e677eab29b86d0f2aba7326a9c]
+class I2--><g id="elem_I2"><rect codeLine="2" fill="#F1F1F1" height="27.6094" id="I2" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="50" x="117" y="70"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="120" y="89.5332">initial 2</text></g><!--MD5=[363b13863ca5c059fad6ef53fd52bddf]
+class In--><g id="elem_In"><rect codeLine="3" fill="#F1F1F1" height="27.6094" id="In" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="54" x="227" y="70"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="48" x="230" y="89.5332">initial ...</text></g><!--MD5=[ef539f75be16fc0b099eba24e322290f]
+class F1--><g id="elem_F1"><rect codeLine="5" fill="#F1F1F1" height="27.6094" id="F1" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="73" x="343" y="70"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="67" x="346" y="89.5332">follow up 1</text></g><!--MD5=[10ed8b8b795e6751459114ef39897030]
+class F2--><g id="elem_F2"><rect codeLine="6" fill="#F1F1F1" height="27.6094" id="F2" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="73" x="478" y="39"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="67" x="481" y="58.5332">follow up 2</text></g><!--MD5=[101ba4c6bb486ac044c8f87f179520a2]
+class Fn--><g id="elem_Fn"><rect codeLine="7" fill="#F1F1F1" height="27.6094" id="Fn" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="77" x="341" y="7"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="71" x="344" y="26.5332">follow up ...</text></g><!--MD5=[37cb987bad4a0120ed3da274750a7aa7]
+link I1 to I2--><g id="link_I1_I2"><path codeLine="10" d="M57.24,84 C73.36,84 94.62,84 111.69,84 " fill="none" id="I1-to-I2" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="116.84,84,107.84,80,111.84,84,107.84,88,116.84,84" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[30e5753c426fcccf8055018cc932142e]
+link I2 to In--><g id="link_I2_In"><path codeLine="11" d="M167.14,84 C183.19,84 204.42,84 221.75,84 " fill="none" id="I2-to-In" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="227,84,218,80,222,84,218,88,227,84" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[4b86d3cf7acdbd42eafe2956010552df]
+link In to F1--><g id="link_In_F1"><path codeLine="12" d="M281.19,84 C297.63,84 319.17,84 337.8,84 " fill="none" id="In-to-F1" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="342.98,84,333.98,80,337.98,84,333.98,88,342.98,84" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6250e50079a8abb3015221588e1cf1cf]
+link F1 to F2--><g id="link_F1_F2"><path codeLine="13" d="M416.14,75.69 C433.58,71.63 454.67,66.71 472.75,62.5 " fill="none" id="F1-to-F2" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="477.76,61.33,468.0843,59.4914,472.8922,62.472,469.9115,67.2799,477.76,61.33" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[7c119b42cce4986b76e3059723688033]
+link F2 to Fn--><g id="link_F2_Fn"><path codeLine="14" d="M477.93,44.44 C461.09,40.39 440.83,35.52 423.17,31.27 " fill="none" id="F2-to-Fn" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="418.26,30.08,426.0753,36.0734,423.1214,31.249,427.9458,28.2951,418.26,30.08" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[1d7e84aa4f32cf7b137468905c52b9e7]
+link Fn to F1--><g id="link_Fn_F1"><path codeLine="15" d="M379.5,35.09 C379.5,44.92 379.5,54.75 379.5,64.58 " fill="none" id="Fn-to-F1" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="379.5,69.73,383.5,60.73,379.5,64.73,375.5,60.73,379.5,69.73" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[7d76fa6349b640b0760b774efc427a89]
+@startuml
+class I1 as "initial 1" {}
+class I2 as "initial 2" {}
+class In as "initial ..." {}
+
+class F1 as "follow up 1" {}
+class F2 as "follow up 2" {}
+class Fn as "follow up ..." {}
+
+left to right direction
+I1 - -> I2
+I2 - -> In
+In - -> F1
+F1 - -> F2
+F2 - -> Fn
+Fn ->  F1
+
+hide circle
+hide members
+@enduml
+
+PlantUML version 1.2022.5(Sat Apr 30 12:55:52 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: Cp1252
+Language: en
+Country: US
+--></g></svg>

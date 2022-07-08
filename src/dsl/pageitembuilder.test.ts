@@ -2,7 +2,13 @@ import test from "tape";
 import { ItemTypes } from "../domain/itemtypes.js";
 import { PageItemBuilder } from "./pageitembuilder.js";
 import { PageBuilder } from "./pagebuilder.js";
-import { getItem, hasPivot, isContextual, Library, Rules } from "../domain/index.js";
+import {
+  getItem,
+  hasPivot,
+  isContextual,
+  Library,
+  Rules,
+} from "../domain/index.js";
 import { isML } from "../domain/domain.js";
 import { SurveyBuilder } from "./surveybuilder.js";
 import {

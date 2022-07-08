@@ -61,6 +61,10 @@ export class WorkflowBuilder
     return this;
   }
 
+  terminal(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder {
+    return this.end(...names);
+  }
+
   end(...names: string[]): IWorkflowBuilder & IRawWorkflowBuilder {
     this.stopTypes.push(...names);
     return this;
@@ -99,7 +103,7 @@ export class WorkflowBuilder
       this.home(this.main._infoType[0]);
     this.n(...this.main.manyTypes.filter(n => types.includes(n)));
     this.seq(...this.main.sequenceTypes.filter(n => types.includes(n)));
-    this.end(...this.main.stopTypes.filter(n => types.includes(n)));
+    this.terminal(...this.main.stopTypes.filter(n => types.includes(n)));
     this.signOn(...this.main.signedTypes.filter(n => types.includes(n)));
     this.pageSetTypes.push(...types);
     return this;

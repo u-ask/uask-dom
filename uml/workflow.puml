@@ -1,0 +1,20 @@
+@startuml page set sequence
+class I1 as "initial 1" {}
+class I2 as "initial 2" {}
+class In as "initial ..." {}
+
+class F1 as "follow up 1" {}
+class F2 as "follow up 2" {}
+class Fn as "follow up ..." {}
+
+left to right direction
+I1 --> I2
+I2 --> In
+In --> F1
+F1 --> F2
+F2 --> Fn
+Fn ->  F1
+
+hide circle
+hide members
+@enduml

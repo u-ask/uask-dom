@@ -172,6 +172,24 @@ test("Survey default workflow", t => {
   t.end();
 });
 
+test("Survey workflow default info", t => {
+  const page1 = new Page("P1");
+  const page2 = new Page("P2");
+  const pageSet1 = new PageSet("Q1", { pages: DomainCollection(page1) });
+  const pageSet2 = new PageSet("Q2", { pages: DomainCollection(page2) });
+  const mainWorkflow = new Workflow({
+    name: "main",
+  });
+  const survey = new Survey("P11-05", {
+    pages: DomainCollection(page1, page2),
+    pageSets: DomainCollection(pageSet1, pageSet2),
+    workflows: DomainCollection(mainWorkflow),
+  });
+  t.equal(survey.pages[2], survey.pageSets[2].pages[0]);
+  t.equal(survey.mainWorkflow.info, survey.pageSets[2]);
+  t.end();
+});
+
 test("Survey update", t => {
   const page1 = new Page("Observance");
   const survey = new Survey("P11-05", {

@@ -27,7 +27,11 @@ import {
 } from "./builders.js";
 import { PageBuilder } from "./pagebuilder.js";
 import { DNode } from "./abstracttree.js";
-import { getTranslation, isMLstring, setTranslation } from "../domain/domain.js";
+import {
+  getTranslation,
+  isMLstring,
+  setTranslation,
+} from "../domain/domain.js";
 import { ConstantRule } from "../domain/rule/unitrule.js";
 import { SurveyBuilder } from "./surveybuilder.js";
 
@@ -208,8 +212,9 @@ export class PageItemBuilder implements IPageItemBuilder, DNode<PageItem> {
     return this;
   }
 
-  required(formula?: string): this {
-    return this.isComputed({ formula })
+  required(formula?: string | Computed): this {
+    formula = isComputed(formula) ? formula.formula : formula;
+    return typeof formula == "string"
       ? this.dynamic([this.variableName], "required", [formula])
       : this.rule("required");
   }
@@ -280,7 +285,8 @@ export class PageItemBuilder implements IPageItemBuilder, DNode<PageItem> {
     return this;
   }
 
-  computed(formula: string): IPageItemBuilder {
+  computed(formula: string | Computed): IPageItemBuilder {
+    formula = isComputed(formula) ? formula.formula : formula;
     if (!this.crossRulesBuilder) throw "crossRulesBuilder is not fluent";
     const crossRule = this.crossRulesBuilder.computed(
       this.variableName,

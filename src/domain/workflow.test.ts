@@ -25,6 +25,12 @@ test("Workflow creation", t => {
   t.end();
 });
 
+test("Workflow default info", t => {
+  const workflow = new Workflow();
+  t.ok(workflow.info);
+  t.end();
+});
+
 test("Workflow available page sets", t => {
   const { workflow, info, incl, init, follow1, follow2, ae, final } =
     buildWorkflow();
