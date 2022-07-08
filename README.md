@@ -1,3 +1,5 @@
+![U-ASK](./logo.svg)
+
 # U-ASK Domain Model
 
 U-ASK domain model classes and builders. This library implement an internal domain specific language as described in [Martin Fowler's Domain Specific Languages](https://martinfowler.com/dsl.html).

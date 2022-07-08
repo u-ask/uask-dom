@@ -1,6 +1,6 @@
 {
   "name": "uask-dom",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "DSL based forms",
   "main": "./dist/dom/index.js",
   "exports": {
@@ -17,7 +17,8 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "logo.svg"
   ],
   "scripts": {
     "test": "node --loader ts-node/esm ./test-runner.ts",
