@@ -81,6 +81,18 @@ test("Secondary workflow", t => {
   t.end();
 });
 
+test("Default workflow", t => {
+  const { incl, follow1 } = buildWorkflow();
+  const pageSets = DomainCollection(incl, follow1);
+  const { infoPage, infoPageSet, mainWorkflow } = Workflow.default(pageSets);
+  t.deepLooseEqual(infoPageSet.pages, [infoPage]);
+  t.equal(mainWorkflow.name, "main");
+  t.equal(mainWorkflow.info, infoPageSet);
+  t.equal(mainWorkflow.single, pageSets);
+  t.equal(mainWorkflow.pageSets.length, 3);
+  t.end();
+});
+
 function buildWorkflow() {
   const info = new PageSet("Information");
   const incl = new PageSet("Inclusion");

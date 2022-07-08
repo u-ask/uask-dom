@@ -611,7 +611,6 @@ test("Build a survey with a page alias", t => {
   b.page("Inclusion visit");
   b.page("Follow up visit");
   const survey = b.get();
-  t.equal(survey.pages.length, 4);
   t.equal((survey.pages[0].includes[0] as Library).page, survey.pages[2]);
   t.equal((survey.pages[1].includes[0] as Library).page, survey.pages[3]);
   t.equal(survey.pages[0].exportConfig?.fileName, "Visit");

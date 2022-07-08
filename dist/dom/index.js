@@ -949,16 +949,10 @@ class InterviewItem {
             : {};
         const acknowledge = this.acknowledgements.find(m => !(previous === null || previous === void 0 ? void 0 : previous.acknowledgements.includes(m)));
         if (acknowledge)
-            return Object.assign(Object.assign({}, diff), { operation: {
-                    en: `acknowledge (${acknowledge})`,
-                    fr: `acknowledge (${acknowledge})`,
-                } });
+            return Object.assign(Object.assign({}, diff), { operation: `acknowledge (${acknowledge})` });
         const reiterate = previous === null || previous === void 0 ? void 0 : previous.acknowledgements.find(m => !this.acknowledgements.includes(m));
         if (reiterate)
-            return Object.assign(Object.assign({}, diff), { operation: {
-                    en: `reiterate (${reiterate})`,
-                    fr: `reiteration (${reiterate})`,
-                } });
+            return Object.assign(Object.assign({}, diff), { operation: `reiterate (${reiterate})` });
         return diff;
     }
 }
@@ -1863,109 +1857,6 @@ function resetItemMessages(t) {
     });
 }
 
-class SurveyOptions {
-    constructor() {
-        var _a;
-        this.languages = ["en", "fr"];
-        this.defaultLang = ((_a = this.languages) === null || _a === void 0 ? void 0 : _a.length) ? this.languages[0] : "en";
-        this.interviewDateVar = "VDATE";
-        this.phoneVar = "__PHONE";
-        this.emailVar = "__EMAIL";
-        this.showFillRate = true;
-        this.epro = false;
-        this.inclusionVar = {
-            name: "__INCLUDED",
-            hidden: false,
-        };
-        this.unitSuffix = "_UNIT";
-        this.workflowVar = "__WORKFLOW";
-        this.participantCodeStrategy = {
-            length: 5,
-            bySample: false,
-        };
-    }
-}
-function isVariableHidden(variableName, def) {
-    if (typeof def == "undefined")
-        return false;
-    if (typeof def == "string")
-        return variableName == def;
-    return variableName == def.name && !!def.hidden;
-}
-class Survey {
-    constructor(name, kwargs) {
-        this.options = new SurveyOptions();
-        this.workflows = DomainCollection();
-        this.pageSets = DomainCollection();
-        this.pages = DomainCollection();
-        this.crossRules = DomainCollection();
-        this.name = name;
-        Object.assign(this, kwargs);
-        this.itemForVariables = this.getItemForVariables();
-        this.items = DomainCollection(...this.itemForVariables.values());
-        this.rules = this.getRules();
-        Object.defineProperty(this, "items", { enumerable: false });
-        Object.defineProperty(this, "rules", { enumerable: false });
-        Object.defineProperty(this, "itemForVariables", { enumerable: false });
-        Domain.extend(this);
-    }
-    get mainWorkflow() {
-        return this.workflow("main");
-    }
-    workflow(name) {
-        const workflowName = typeof name == "undefined"
-            ? "main"
-            : typeof name == "string"
-                ? name
-                : name.workflow;
-        const workflow = this.workflows.find(w => w.name == workflowName);
-        return (workflow !== null && workflow !== void 0 ? workflow : (typeof name == "string" ? undefined : this.mainWorkflow));
-    }
-    getItemForVariables() {
-        return this.pages.reduce((result, p) => p.includes
-            .filter((i) => i instanceof PageItem)
-            .reduce((r, item) => {
-            r.set(item.variableName, item);
-            return r;
-        }, result), new Map());
-    }
-    getItemForVariable(variableName) {
-        return this.itemForVariables.get(variableName);
-    }
-    get inclusionPageSet() {
-        var _a;
-        const inclusionVar = typeof this.options.inclusionVar == "string"
-            ? this.options.inclusionVar
-            : (_a = this.options.inclusionVar) === null || _a === void 0 ? void 0 : _a.name;
-        return this.pageSets.find(p => p.items.some(i => getItem(i).variableName == inclusionVar));
-    }
-    update(kwargs) {
-        return Domain.update(this, kwargs, [Survey, this.name]);
-    }
-    getRules() {
-        return this.items.reduce((rules, i) => {
-            const r = Survey.getUnitRules(i).concat(this.crossRules.filter(r => r.target == i));
-            return ruleSequence(rules.append(...r));
-        }, DomainCollection());
-    }
-    get pins() {
-        return this.items.filter(i => i.pin);
-    }
-    get kpis() {
-        return this.items.filter(i => i.kpi);
-    }
-    static getUnitRules(pageItem) {
-        const reducer = Survey.addUnitRule(pageItem);
-        const allRules = pageItem.rules.reduce((rules, r) => reducer(rules, r), DomainCollection());
-        return pageItem.defaultValue == undefined
-            ? allRules
-            : reducer(allRules, pageItem.defaultValue, "initialization");
-    }
-    static addUnitRule(pageItem) {
-        return (rules, rule, when = "always") => rules.append(new CrossItemRule(pageItem, rule, when));
-    }
-}
-
 class ConstantRule {
     constructor(value) {
         this.value = value;
@@ -2210,6 +2101,235 @@ class PageSet {
     }
     get kpis() {
         return this.items.filter(i => getItem(i).kpi);
+    }
+}
+
+class Workflow {
+    constructor(kwargs) {
+        this.single = DomainCollection();
+        this.many = DomainCollection();
+        this.sequence = DomainCollection();
+        this.stop = DomainCollection();
+        this.name = "main";
+        this.notifications = DomainCollection();
+        Object.assign(this, kwargs);
+        Domain.extend(this);
+    }
+    get pageSets() {
+        const singleAux = this.single.filter(p => !this.sequence.includes(p));
+        const manyAux = this.many.filter(p => !this.sequence.includes(p));
+        return this.info
+            ? DomainCollection(this.info, ...this.sequence, ...singleAux, ...manyAux)
+            : DomainCollection(...this.sequence, ...singleAux, ...manyAux);
+    }
+    available(...done) {
+        if (!this.main)
+            return this.walkSequence(done);
+        return this.main.walkSequence(done).filter(p => this.pageSets.includes(p));
+    }
+    walkSequence(done) {
+        switch (true) {
+            case this.isEnded(done):
+                return DomainCollection();
+            case this.isNotInitialized(done):
+                return DomainCollection(this.first);
+            case this.isNotStarted(done):
+                return DomainCollection(this.start);
+            case this.isLoopEnded(done):
+                return this.continueSequence(done, this.startLoop);
+            default:
+                return this.continueSequence(done);
+        }
+    }
+    next(...done) {
+        switch (true) {
+            case this.isSequenceBroken(done):
+            case this.isEnded(done):
+            case this.isNotInitialized(done):
+            case this.isLoopEnded(done):
+                return undefined;
+            case this.isNotStarted(done):
+                return this.start;
+            default:
+                return this.nextInSequence(done);
+        }
+    }
+    get first() {
+        var _a;
+        return (_a = this.info) !== null && _a !== void 0 ? _a : this.sequence[0];
+    }
+    get start() {
+        return this.sequence[0];
+    }
+    get startLoop() {
+        return this.sequence.find(p => this.many.includes(p));
+    }
+    isEnded(done) {
+        return this.stop.includes(done[done.length - 1]);
+    }
+    isNotInitialized(done) {
+        return done.length == 0 && typeof this.info != undefined;
+    }
+    isNotStarted(done) {
+        return !done.includes(this.sequence[0]);
+    }
+    isSequenceBroken(done) {
+        return (!this.isInSequence(done) ||
+            this.isComplete(done, this.nextInSequence(done)));
+    }
+    isInSequence(done) {
+        return (this.isNotStarted(done) || this.sequence.includes(done[done.length - 1]));
+    }
+    isComplete(done, next) {
+        return done.includes(next) && this.single.includes(next);
+    }
+    isLoopEnded(done) {
+        return this.nextInSequence(done) == undefined;
+    }
+    nextInSequence(done) {
+        const lastInSequence = done.reduce((last, p) => {
+            const y = this.sequence.indexOf(p);
+            return y == -1 ? last : y;
+        }, -1);
+        const nextInSequence = lastInSequence + 1;
+        return this.sequence[nextInSequence];
+    }
+    continueSequence(done, current = this.nextInSequence(done)) {
+        const remainingSingle = this.single.filter(p => !done.includes(p) && !this.stop.includes(p) && current != p);
+        const remainingMany = this.many.filter(p => !this.sequence.includes(p));
+        return DomainCollection(...(current ? [current] : []), ...remainingSingle, ...remainingMany, ...this.stop);
+    }
+    isInfo(pageSet) {
+        var _a;
+        return pageSet == this.info || pageSet == ((_a = this.main) === null || _a === void 0 ? void 0 : _a.info);
+    }
+    update(kwargs) {
+        return Domain.update(this, kwargs, [Workflow]);
+    }
+    static default(pageSets) {
+        const info = { __code__: "HOME", en: "Synthesis" };
+        const infoPage = new Page(info);
+        const infoPageSet = new PageSet(info, {
+            pages: DomainCollection(infoPage),
+        });
+        const mainWorkflow = new Workflow({
+            name: "main",
+            info: infoPageSet,
+            single: pageSets,
+        });
+        return { infoPage, infoPageSet, mainWorkflow };
+    }
+}
+
+class SurveyOptions {
+    constructor() {
+        var _a;
+        this.languages = ["en", "fr"];
+        this.defaultLang = ((_a = this.languages) === null || _a === void 0 ? void 0 : _a.length) ? this.languages[0] : "en";
+        this.interviewDateVar = "VDATE";
+        this.phoneVar = "__PHONE";
+        this.emailVar = "__EMAIL";
+        this.showFillRate = true;
+        this.epro = false;
+        this.inclusionVar = {
+            name: "__INCLUDED",
+            hidden: false,
+        };
+        this.unitSuffix = "_UNIT";
+        this.workflowVar = "__WORKFLOW";
+        this.participantCodeStrategy = {
+            length: 5,
+            bySample: false,
+        };
+    }
+}
+function isVariableHidden(variableName, def) {
+    if (typeof def == "undefined")
+        return false;
+    if (typeof def == "string")
+        return variableName == def;
+    return variableName == def.name && !!def.hidden;
+}
+class Survey {
+    constructor(name, kwargs) {
+        this.options = new SurveyOptions();
+        this.workflows = DomainCollection();
+        this.pageSets = DomainCollection();
+        this.pages = DomainCollection();
+        this.crossRules = DomainCollection();
+        this.name = name;
+        Object.assign(this, kwargs);
+        if (this.workflows.length == 0)
+            Object.assign(this, this.initWorkflow());
+        this.itemForVariables = this.getItemForVariables();
+        this.items = DomainCollection(...this.itemForVariables.values());
+        this.rules = this.getRules();
+        Object.defineProperty(this, "items", { enumerable: false });
+        Object.defineProperty(this, "rules", { enumerable: false });
+        Object.defineProperty(this, "itemForVariables", { enumerable: false });
+        Domain.extend(this);
+    }
+    initWorkflow() {
+        const { infoPage, infoPageSet, mainWorkflow } = Workflow.default(this.pageSets);
+        const pages = this.pages.append(infoPage);
+        const pageSets = this.pageSets.append(infoPageSet);
+        const workflows = DomainCollection(mainWorkflow);
+        return { pages, pageSets, workflows };
+    }
+    get mainWorkflow() {
+        return this.workflow("main");
+    }
+    workflow(name) {
+        const workflowName = typeof name == "undefined"
+            ? "main"
+            : typeof name == "string"
+                ? name
+                : name.workflow;
+        const workflow = this.workflows.find(w => w.name == workflowName);
+        return (workflow !== null && workflow !== void 0 ? workflow : (typeof name == "string" ? undefined : this.mainWorkflow));
+    }
+    getItemForVariables() {
+        return this.pages.reduce((result, p) => p.includes
+            .filter((i) => i instanceof PageItem)
+            .reduce((r, item) => {
+            r.set(item.variableName, item);
+            return r;
+        }, result), new Map());
+    }
+    getItemForVariable(variableName) {
+        return this.itemForVariables.get(variableName);
+    }
+    get inclusionPageSet() {
+        var _a;
+        const inclusionVar = typeof this.options.inclusionVar == "string"
+            ? this.options.inclusionVar
+            : (_a = this.options.inclusionVar) === null || _a === void 0 ? void 0 : _a.name;
+        return this.pageSets.find(p => p.items.some(i => getItem(i).variableName == inclusionVar));
+    }
+    update(kwargs) {
+        return Domain.update(this, kwargs, [Survey, this.name]);
+    }
+    getRules() {
+        return this.items.reduce((rules, i) => {
+            const r = Survey.getUnitRules(i).concat(this.crossRules.filter(r => r.target == i));
+            return ruleSequence(rules.append(...r));
+        }, DomainCollection());
+    }
+    get pins() {
+        return this.items.filter(i => i.pin);
+    }
+    get kpis() {
+        return this.items.filter(i => i.kpi);
+    }
+    static getUnitRules(pageItem) {
+        const reducer = Survey.addUnitRule(pageItem);
+        const allRules = pageItem.rules.reduce((rules, r) => reducer(rules, r), DomainCollection());
+        return pageItem.defaultValue == undefined
+            ? allRules
+            : reducer(allRules, pageItem.defaultValue, "initialization");
+    }
+    static addUnitRule(pageItem) {
+        return (rules, rule, when = "always") => rules.append(new CrossItemRule(pageItem, rule, when));
     }
 }
 
@@ -2586,110 +2706,6 @@ Rules.letterCase = (letterCase) => new LetterCaseRule(letterCase);
 Rules.activation = (values, behavior) => new ActivationRule(values, behavior);
 Rules.computed = (formula, argCount = 10) => new ComputedRule(formula, argCount);
 Rules.dynamic = (rule, computed, ...extraArgs) => new DynamicRule(typeof rule == "string" ? Rules.factory(rule) : rule, new ComputedRule(...computed), ...extraArgs);
-
-class Workflow {
-    constructor(kwargs) {
-        this.single = DomainCollection();
-        this.many = DomainCollection();
-        this.sequence = DomainCollection();
-        this.stop = DomainCollection();
-        this.name = "main";
-        this.notifications = DomainCollection();
-        Object.assign(this, kwargs);
-        Domain.extend(this);
-    }
-    get pageSets() {
-        const singleAux = this.single.filter(p => !this.sequence.includes(p));
-        const manyAux = this.many.filter(p => !this.sequence.includes(p));
-        return this.info
-            ? DomainCollection(this.info, ...this.sequence, ...singleAux, ...manyAux)
-            : DomainCollection(...this.sequence, ...singleAux, ...manyAux);
-    }
-    available(...done) {
-        if (!this.main)
-            return this.walkSequence(done);
-        return this.main.walkSequence(done).filter(p => this.pageSets.includes(p));
-    }
-    walkSequence(done) {
-        switch (true) {
-            case this.isEnded(done):
-                return DomainCollection();
-            case this.isNotInitialized(done):
-                return DomainCollection(this.first);
-            case this.isNotStarted(done):
-                return DomainCollection(this.start);
-            case this.isLoopEnded(done):
-                return this.continueSequence(done, this.startLoop);
-            default:
-                return this.continueSequence(done);
-        }
-    }
-    next(...done) {
-        switch (true) {
-            case this.isSequenceBroken(done):
-            case this.isEnded(done):
-            case this.isNotInitialized(done):
-            case this.isLoopEnded(done):
-                return undefined;
-            case this.isNotStarted(done):
-                return this.start;
-            default:
-                return this.nextInSequence(done);
-        }
-    }
-    get first() {
-        var _a;
-        return (_a = this.info) !== null && _a !== void 0 ? _a : this.sequence[0];
-    }
-    get start() {
-        return this.sequence[0];
-    }
-    get startLoop() {
-        return this.sequence.find(p => this.many.includes(p));
-    }
-    isEnded(done) {
-        return this.stop.includes(done[done.length - 1]);
-    }
-    isNotInitialized(done) {
-        return done.length == 0 && typeof this.info != undefined;
-    }
-    isNotStarted(done) {
-        return !done.includes(this.sequence[0]);
-    }
-    isSequenceBroken(done) {
-        return (!this.isInSequence(done) ||
-            this.isComplete(done, this.nextInSequence(done)));
-    }
-    isInSequence(done) {
-        return (this.isNotStarted(done) || this.sequence.includes(done[done.length - 1]));
-    }
-    isComplete(done, next) {
-        return done.includes(next) && this.single.includes(next);
-    }
-    isLoopEnded(done) {
-        return this.nextInSequence(done) == undefined;
-    }
-    nextInSequence(done) {
-        const lastInSequence = done.reduce((last, p) => {
-            const y = this.sequence.indexOf(p);
-            return y == -1 ? last : y;
-        }, -1);
-        const nextInSequence = lastInSequence + 1;
-        return this.sequence[nextInSequence];
-    }
-    continueSequence(done, current = this.nextInSequence(done)) {
-        const remainingSingle = this.single.filter(p => !done.includes(p) && !this.stop.includes(p) && current != p);
-        const remainingMany = this.many.filter(p => !this.sequence.includes(p));
-        return DomainCollection(...(current ? [current] : []), ...remainingSingle, ...remainingMany, ...this.stop);
-    }
-    isInfo(pageSet) {
-        var _a;
-        return pageSet == this.info || pageSet == ((_a = this.main) === null || _a === void 0 ? void 0 : _a.info);
-    }
-    update(kwargs) {
-        return Domain.update(this, kwargs, [Workflow]);
-    }
-}
 
 function isParticipantLike(o) {
     return typeof o == "object" && o != null && "participantCode" in o;
@@ -3626,7 +3642,7 @@ class SurveyBuilder {
         return pageBuilder;
     }
     workflow(w = "main", ...names) {
-        const name = typeof w == "string" || typeof w == "undefined" ? w : w.name;
+        const name = typeof w == "string" ? w : w.name;
         const workflowBuilder = new WorkflowBuilder(name, this.config, this.mainWorkflow, this);
         if (name == "main") {
             this.mainWorkflow = workflowBuilder;

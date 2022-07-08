@@ -1,6 +1,7 @@
 import { Domain } from "./domain.js";
 import { DomainCollection } from "./domaincollection.js";
 import { IDomainCollection } from "./domaincollectiondef.js";
+import { Page } from "./page.js";
 import { PageSet } from "./pageSet.js";
 
 export class Workflow {
@@ -136,5 +137,19 @@ export class Workflow {
 
   update(kwargs: Partial<Workflow>): Workflow {
     return Domain.update(this, kwargs, [Workflow]);
+  }
+
+  static default(pageSets: IDomainCollection<PageSet>) {
+    const info = { __code__: "HOME", en: "Synthesis" };
+    const infoPage = new Page(info);
+    const infoPageSet = new PageSet(info, {
+      pages: DomainCollection(infoPage),
+    });
+    const mainWorkflow = new Workflow({
+      name: "main",
+      info: infoPageSet,
+      single: pageSets,
+    });
+    return { infoPage, infoPageSet, mainWorkflow };
   }
 }

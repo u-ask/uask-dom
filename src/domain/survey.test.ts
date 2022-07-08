@@ -51,7 +51,9 @@ test("Survey available languages", t => {
 test("Survey default pageSet date variable name", t => {
   const survey1 = new Survey("P11-05");
   t.equal(survey1.options.interviewDateVar, "VDATE");
-  const survey2 = new Survey("P11-05", { options: { interviewDateVar: "LADATE" } });
+  const survey2 = new Survey("P11-05", {
+    options: { interviewDateVar: "LADATE" },
+  });
   t.equal(survey2.options.interviewDateVar, "LADATE");
   t.end();
 });
@@ -148,8 +150,25 @@ test("Survey has workflow", t => {
       })
     ),
   });
+  t.equal(survey.mainWorkflow.info, pageSet0);
   t.equal(survey.mainWorkflow.single[0], pageSet1);
   t.equal(survey.mainWorkflow.many[0], pageSet2);
+  t.end();
+});
+
+test("Survey default workflow", t => {
+  const page1 = new Page("P1");
+  const page2 = new Page("P2");
+  const pageSet1 = new PageSet("Q1", { pages: DomainCollection(page1) });
+  const pageSet2 = new PageSet("Q2", { pages: DomainCollection(page2) });
+  const survey = new Survey("P11-05", {
+    pages: DomainCollection(page1, page2),
+    pageSets: DomainCollection(pageSet1, pageSet2),
+  });
+  t.equal(survey.pages[2], survey.pageSets[2].pages[0]);
+  t.equal(survey.mainWorkflow.info, survey.pageSets[2]);
+  t.equal(survey.mainWorkflow.single[0], pageSet1);
+  t.equal(survey.mainWorkflow.single[1], pageSet2);
   t.end();
 });
 

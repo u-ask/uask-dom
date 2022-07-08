@@ -119,13 +119,13 @@ export class SurveyBuilder
   }
 
   workflow(): IWorkflowBuilder;
-  workflow(w: { name: string; raw: true }): IRawWorkflowBuilder;
   workflow(name: string, ...names: string[]): IDerivedWorkflowBuilder;
+  workflow(w: { name: string; raw: true }): IRawWorkflowBuilder;
   workflow(
     w: string | { name: string; raw: true } = "main",
     ...names: string[]
   ): IWorkflowBuilder | IDerivedWorkflowBuilder | IRawWorkflowBuilder {
-    const name = typeof w == "string" || typeof w == "undefined" ? w : w.name;
+    const name = typeof w == "string" ? w : w.name;
     const workflowBuilder = new WorkflowBuilder(
       name,
       this.config,

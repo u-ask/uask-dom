@@ -176,10 +176,7 @@ export class InterviewItem implements ItemWithContext, Differentiable {
     if (acknowledge)
       return {
         ...diff,
-        operation: {
-          en: `acknowledge (${acknowledge})`,
-          fr: `acknowledge (${acknowledge})`,
-        },
+        operation: `acknowledge (${acknowledge})`,
       };
     const reiterate = previous?.acknowledgements.find(
       m => !this.acknowledgements.includes(m)
@@ -187,10 +184,7 @@ export class InterviewItem implements ItemWithContext, Differentiable {
     if (reiterate)
       return {
         ...diff,
-        operation: {
-          en: `reiterate (${reiterate})`,
-          fr: `reiteration (${reiterate})`,
-        },
+        operation: `reiterate (${reiterate})`,
       };
     return diff;
   }

@@ -692,6 +692,11 @@ declare class Workflow {
     private continueSequence;
     isInfo(pageSet: PageSet): boolean;
     update(kwargs: Partial<Workflow>): Workflow;
+    static default(pageSets: IDomainCollection<PageSet>): {
+        infoPage: Page;
+        infoPageSet: PageSet;
+        mainWorkflow: Workflow;
+    };
 }
 
 declare class Participant {
@@ -786,6 +791,7 @@ declare class Survey {
     readonly rules: IDomainCollection<CrossItemRule>;
     private readonly itemForVariables;
     constructor(name: string, kwargs?: Partial<Survey>);
+    private initWorkflow;
     get mainWorkflow(): Workflow;
     workflow(name?: {
         workflow: string;
@@ -1346,11 +1352,11 @@ declare class SurveyBuilder implements ISurveyBuilder, ICrossRuleBuilder, DNode<
     pageSet(type: mlstring): IPageSetBuilder;
     page(name: mlstring): IPageBuilder;
     workflow(): IWorkflowBuilder;
+    workflow(name: string, ...names: string[]): IDerivedWorkflowBuilder;
     workflow(w: {
         name: string;
         raw: true;
     }): IRawWorkflowBuilder;
-    workflow(name: string, ...names: string[]): IDerivedWorkflowBuilder;
     activateWhen(target: string, activator: string, ...values: unknown[]): CrossRuleBuilder;
     visibleWhen(target: string, activator: string, ...values: unknown[]): CrossRuleBuilder;
     private doWhen;

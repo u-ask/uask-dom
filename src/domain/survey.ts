@@ -1,8 +1,4 @@
-import {
-  CrossItemRule,
-  ruleSequence,
-  TriggerWhen,
-} from "./rule/crossrule.js";
+import { CrossItemRule, ruleSequence, TriggerWhen } from "./rule/crossrule.js";
 import { Domain } from "./domain.js";
 import { DomainCollection } from "./domaincollection.js";
 import { IDomainCollection } from "./domaincollectiondef.js";
@@ -62,6 +58,7 @@ class Survey {
   constructor(name: string, kwargs?: Partial<Survey>) {
     this.name = name;
     Object.assign(this, kwargs);
+    if (this.workflows.length == 0) Object.assign(this, this.initWorkflow());
     this.itemForVariables = this.getItemForVariables();
     this.items = DomainCollection(...this.itemForVariables.values());
     this.rules = this.getRules();
@@ -69,6 +66,16 @@ class Survey {
     Object.defineProperty(this, "rules", { enumerable: false });
     Object.defineProperty(this, "itemForVariables", { enumerable: false });
     Domain.extend(this);
+  }
+
+  private initWorkflow() {
+    const { infoPage, infoPageSet, mainWorkflow } = Workflow.default(
+      this.pageSets
+    );
+    const pages = this.pages.append(infoPage);
+    const pageSets = this.pageSets.append(infoPageSet);
+    const workflows = DomainCollection(mainWorkflow);
+    return { pages, pageSets, workflows };
   }
 
   get mainWorkflow(): Workflow {

@@ -42,6 +42,8 @@ The result is a `Survey` object with `PageSet`, `Page` and `PageItem` objects th
 
 The complete refercence for survey buiders is [below](#dsl-reference)
 
+## Workflows
+A survey may have one 
 ## `Participant` construction
 A `Participant` participes to a `Survey` ; it belongs to a `Sample`.
 

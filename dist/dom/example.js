@@ -190,7 +190,7 @@ b.page("Page array example")
 b.page("Array example")
     .question("Single", "SDATE", b.types.date())
     .include("Page array example");
-const exampleSurvey = b.get();
+const exampleSurvey = b.build();
 const exampleSamples = [new Sample("001"), new Sample("002")];
 const p1 = new ParticipantBuilder(exampleSurvey, "000001", exampleSamples[0]);
 p1.interview(exampleSurvey.pageSets[0])
