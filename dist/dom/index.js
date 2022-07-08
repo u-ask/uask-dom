@@ -2106,6 +2106,7 @@ class PageSet {
 
 class Workflow {
     constructor(kwargs) {
+        var _a, _b;
         this.info = Workflow.home().infoPageSet;
         this.single = DomainCollection();
         this.many = DomainCollection();
@@ -2113,6 +2114,8 @@ class Workflow {
         this.stop = DomainCollection();
         this.name = "main";
         this.notifications = DomainCollection();
+        if (kwargs && typeof kwargs.info == "undefined")
+            kwargs = Object.assign(Object.assign({}, kwargs), { info: (_b = (_a = kwargs.main) === null || _a === void 0 ? void 0 : _a.info) !== null && _b !== void 0 ? _b : this.info });
         Object.assign(this, kwargs);
         Domain.extend(this);
     }
@@ -2914,9 +2917,9 @@ class PageItemBuilder {
         return this;
     }
     required(formula) {
-        const enforced = isComputed(formula) ? formula.formula : formula;
-        return typeof enforced == "string"
-            ? this.dynamic([this.variableName], "required", [enforced])
+        formula = isComputed(formula) ? formula.formula : formula;
+        return typeof formula == "string"
+            ? this.dynamic([this.variableName], "required", [formula])
             : this.rule("required");
     }
     critical(event, message, ...values) {
@@ -2961,6 +2964,7 @@ class PageItemBuilder {
         return this;
     }
     computed(formula) {
+        formula = isComputed(formula) ? formula.formula : formula;
         if (!this.crossRulesBuilder)
             throw "crossRulesBuilder is not fluent";
         const crossRule = this.crossRulesBuilder.computed(this.variableName, formula);
@@ -3351,11 +3355,7 @@ class PageSetBuilder {
                 mandatory: !!p.mandatory,
             };
         });
-        return new PageSet(this.type, {
-            pages: DomainCollection(...currentPages.map(p => p.page)),
-            datevar: this.datevar,
-            mandatoryPages: DomainCollection(...currentPages.filter(p => p.mandatory).map(p => p.page)),
-        });
+        return new PageSet(this.type, Object.assign(Object.assign({ pages: DomainCollection(...currentPages.map(p => p.page)) }, (this.datevar ? { datevar: this.datevar } : {})), { mandatoryPages: DomainCollection(...currentPages.filter(p => p.mandatory).map(p => p.page)) }));
     }
     mapPage(pages, n) {
         var _a;

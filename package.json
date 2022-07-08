@@ -1,6 +1,6 @@
 {
   "name": "uask-dom",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "DSL based forms",
   "main": "./dist/dom/index.js",
   "exports": {

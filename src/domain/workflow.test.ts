@@ -25,12 +25,6 @@ test("Workflow creation", t => {
   t.end();
 });
 
-test("Workflow default info", t => {
-  const workflow = new Workflow();
-  t.ok(workflow.info);
-  t.end();
-});
-
 test("Workflow available page sets", t => {
   const { workflow, info, incl, init, follow1, follow2, ae, final } =
     buildWorkflow();
@@ -82,7 +76,7 @@ test("Secondary workflow", t => {
     many: DomainCollection(follow1),
     main,
   });
-  t.deepEqual(workflow.available(), DomainCollection());
+  t.deepEqual(workflow.available(info), DomainCollection());
   t.deepEqual(workflow.available(info, incl, init), DomainCollection(follow1));
   t.end();
 });

@@ -1012,7 +1012,7 @@ interface IUnitBuilder {
 interface IPageItemBuilder extends ISectionBuilder, WithInclude, WithPageItem {
     unit(...units: string[]): IPageItemBuilder & IUnitBuilder;
     translate(lang: string, translation: string, ...contexts: string[]): IPageItemBuilder;
-    required(formula?: string): IPageItemBuilder;
+    required(formula?: string | Computed): IPageItemBuilder;
     critical(event: string | Computed, message?: string, formula?: Computed): IPageItemBuilder;
     critical(event: string | Computed, message?: string, ...values: unknown[]): IPageItemBuilder;
     inRange(min: number | Date | Computed, max: number | Date | Computed, limits?: Limits): IPageItemBuilder;
@@ -1023,7 +1023,7 @@ interface IPageItemBuilder extends ISectionBuilder, WithInclude, WithPageItem {
     maxLength(maxLength: number): IPageItemBuilder;
     decimalPrecision(precision: number): IPageItemBuilder;
     fixedLength(length: number): IPageItemBuilder;
-    computed(formula: string): IPageItemBuilder;
+    computed(formula: string | Computed): IPageItemBuilder;
     memorize(): IPageItemBuilder;
     letterCase(letterCase: "upper" | "lower"): IPageItemBuilder;
     activateWhen(formula: string): IPageItemBuilder;
@@ -1132,7 +1132,7 @@ declare class PageItemBuilder implements IPageItemBuilder, DNode<PageItem> {
     activateWhen(variableName: string, ...values: unknown[]): IPageItemBuilder;
     visibleWhen(variableName: string, ...values: unknown[]): IPageItemBuilder;
     modifiableWhen(variableName: string, ...values: unknown[]): IPageItemBuilder;
-    computed(formula: string): IPageItemBuilder;
+    computed(formula: string | Computed): IPageItemBuilder;
     memorize(): IPageItemBuilder;
     maxLength(length: number): this;
     decimalPrecision(precision: number): this;

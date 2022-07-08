@@ -15,6 +15,8 @@ export class Workflow {
   readonly notifications = DomainCollection<string>();
 
   constructor(kwargs?: Partial<Workflow>) {
+    if (kwargs && typeof kwargs.info == "undefined")
+      kwargs = { ...kwargs, info: kwargs.main?.info ?? this.info };
     Object.assign(this, kwargs);
     Domain.extend(this);
   }

@@ -62,7 +62,7 @@ export class PageSetBuilder implements IPageSetBuilder, DNode<PageSet> {
 
     return new PageSet(this.type, {
       pages: DomainCollection(...currentPages.map(p => p.page)),
-      datevar: this.datevar,
+      ...(this.datevar ? { datevar: this.datevar } : {}),
       mandatoryPages: DomainCollection(
         ...currentPages.filter(p => p.mandatory).map(p => p.page)
       ),
