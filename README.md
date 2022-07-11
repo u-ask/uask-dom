@@ -15,6 +15,8 @@ This library is intended to be used with [U-ASK Management System](https://githu
  - [DSL reference](#dsl-reference)
 
 
+_*Note:*_ npm scripts needs bash ; please [configure git bash](https://stackoverflow.com/questions/23243353/how-to-set-shell-for-npm-run-scripts-in-windows) as script shell for npm on Windows.
+
 # Install
 ```bash
 npm Install uask-dom
