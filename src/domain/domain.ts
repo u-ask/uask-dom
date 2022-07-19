@@ -22,7 +22,11 @@ export function getTranslation(
 ): string | undefined {
   if (typeof label == "undefined" || typeof label == "string") return label;
   if (typeof label == "number") return String(label);
-  return label[lang ?? "en"] ?? label[fallbackLang ?? "en"];
+  return (
+    label[lang ?? "en"] ??
+    label[fallbackLang ?? "en"] ??
+    Object.values(label)[0]
+  );
 }
 
 export function setTranslation(
